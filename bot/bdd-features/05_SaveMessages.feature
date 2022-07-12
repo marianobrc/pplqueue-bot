@@ -1,6 +1,6 @@
 Feature: Save messages for later
     As a slack user
-    I the bot to save messages
+    I want the bot to save messages
     So that I can review them later
 
   Scenario: Ask the bot to save a message in a channel
@@ -22,4 +22,3 @@ Feature: Save messages for later
     And I use the words "save thread"
     Then the bot saves a link to the head message of the thread with a priority (see SetPriorities feature)
     And answers with a message in the same thread telling that a link to this thread was saved
-    
