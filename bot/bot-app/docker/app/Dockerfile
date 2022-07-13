@@ -18,14 +18,19 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 # Switch to the non-root user
 USER web
+# Install the poetry for python dependency management
+# https://python-poetry.org/docs/master/#installation
+ENV POETRY_VERSION=1.1.14
+RUN curl -sSL https://install.python-poetry.org | python3 - --version "$POETRY_VERSION"
+# See "Add Poetry to your PATH" in https://python-poetry.org/docs/master/#installing-with-the-official-installer
+#ENV PATH="/root/.local/bin:$PATH"
+ENV PATH="/home/web/.local/bin:$PATH"
 # Create a directory for the source code and use it as base path
 WORKDIR /home/web/code/
-# Copy the python depencencies list for pip
-COPY --chown=web:web ./requirements/base.txt requirements/base.txt
+# Copy the python depencencies list for poetry
+COPY --chown=web:web poetry.lock pyproject.toml ./
 # Switch to the root user temporary, to grant execution permissions.
 USER root
-# Install python packages at system level
-RUN pip install --no-cache-dir -r requirements/base.txt
 # Copy entrypoint script which waits for the db to be ready
 COPY --chown=web:web ./docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -39,6 +44,9 @@ ENTRYPOINT ["entrypoint.sh"]
 
 # Define an image for local development. Inherits common packages from the base stage.
 FROM base as dev
+# Install python packages at system level, including development dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction
 # Copy the scripts that starts the development application server (runserver)
 COPY --chown=web:web ./docker/app/start-dev-server.sh /usr/local/bin/start-dev-server.sh
 USER root
@@ -52,8 +60,6 @@ CMD ["start-dev-server.sh"]
 FROM base as prod
 # Install extra packages required in production
 USER root
-COPY --chown=web:web ./requirements/prod.txt requirements/prod.txt
-RUN pip install --no-cache-dir -r requirements/prod.txt
 # Copy the script that starts the production application server (gunicorn)
 COPY --chown=web:web ./docker/app/start-prod-server.sh /usr/local/bin/start-prod-server.sh
 RUN chmod +x /usr/local/bin/start-prod-server.sh

@@ -15,7 +15,7 @@ services:
       - ./db/psql-init/db.sql:/docker-entrypoint-initdb.d/db.sql
       - postgres_data:/var/lib/postgresql/data/
 
-  app:
+  bot_app:
     build: &app-image
       context: ../
       dockerfile: ./docker/app/Dockerfile
