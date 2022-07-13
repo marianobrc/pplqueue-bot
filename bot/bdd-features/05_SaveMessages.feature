@@ -9,8 +9,8 @@ Feature: Save messages for later
     And I am subscribed to the bot
     When I respond the message in a thread
     And I @mention the bot
-    And I use the words "save message"
-    Then the bot saves a link to the message with a priority (see SetPriorities feature)
+    And I use the words "save message [label]"
+    Then the bot saves a link to the message with a priority and optionally with a label (see SetPriorities feature)
     And answers with a message in teh same thread telling that a link to this message was saved
 
   Scenario: Ask the bot to save a message in a thread
@@ -20,5 +20,5 @@ Feature: Save messages for later
     When I respond the message in a thread
     And I @mention the bot
     And I use the words "save thread"
-    Then the bot saves a link to the head message of the thread with a priority (see SetPriorities feature)
+    Then the bot saves a link to the head message of the thread with a priority and optionally with a label (see SetPriorities feature)
     And answers with a message in the same thread telling that a link to this thread was saved
