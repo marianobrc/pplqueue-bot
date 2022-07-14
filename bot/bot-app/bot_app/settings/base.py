@@ -39,7 +39,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 THIRD_PARTY_APPS = [
-
+    'rest_framework',
 ]
 
 LOCAL_APPS = [
@@ -188,3 +188,6 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 }
 # This setting makes the tasks to run synchronously. Useful for local debugging and CI tests.
 CELERY_TASK_ALWAYS_EAGER = strtobool(os.getenv("CELERY_TASK_ALWAYS_EAGER", "False"))
+
+# Slack Keys and Secrets
+SLACK_SIGNING_SECRET = os.getenv("SLACK_SIGNING_SECRET")

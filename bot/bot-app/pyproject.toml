@@ -13,6 +13,7 @@ pycurl = "*"
 boto3 = "*"
 celery = { extras = ["sqs"], version = "~5.2.7" }
 kombu = { extras = ["sqs"], version = "^5.2.4" }
+slack-sdk = "^3.17.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
