@@ -39,7 +39,9 @@ def app_mention(slack_event):
 def send_greetings(channel_id, user_id):
     try:
         # Say hi to the user that has mentioned me
-        greeting_msg = f"Hi <@{user_id}>! How can I help?"
+        greeting_msg = f"Hi <@{user_id}> :wave: How can I help?"
+        if user_id == "U03P0TM43SA":
+            greeting_msg = f"Hi <@{user_id}> :heart_eyes:  Ask me anything!"
         print(f'Answering:\n{greeting_msg}')
         result = slack_client.chat_postMessage(
             channel=channel_id,
