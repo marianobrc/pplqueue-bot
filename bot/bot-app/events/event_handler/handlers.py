@@ -2,6 +2,8 @@ import logging
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from slack_messages.models import SlackChannel, MessageLink
 from .errors import LinkGenerationError
 
 
@@ -15,15 +17,17 @@ def app_mention(slack_event):
     user_id = slack_event['event']['user']
     text = slack_event['event']['text']
     print(f'[app_mention]> Got a message from channel {channel_id}, user {user_id}: \n {text}')
+
     # Parse commands
     # "save message"
     if "save" in text and "message" in text:
+        # ToDo: Parse priority from the text
         save_message(slack_event)
     else:  # Default response if no other command is recognized
         send_greetings(slack_event)
 
 
-def save_message(slack_event):
+def save_message(slack_event, priority=MessageLink.Priority.MEDIUM):
     # Check if there is a message in a thread
     if "thread_ts" not in slack_event['event']:
         send_save_message_help(slack_event)
@@ -31,12 +35,25 @@ def save_message(slack_event):
     # Save a link to the thread
     channel_id = slack_event['event']['channel']
     message_id = slack_event['event']['thread_ts']
+    user_id = slack_event['event']['user'].strip()
     try:
-        link = get_message_permalink(channel_id, message_id)
+        permalink = get_message_permalink(channel_id, message_id)
     except LinkGenerationError:
         send_error_message(slack_event, error_details="I couldn't save your message")
         return
-    print(f"[save_message]> Link: {link}")
+    print(f"[save_message]> Link: {permalink}")
+    # Save the message, only once
+    channel = SlackChannel.objects.get(channel_id=channel_id)  # FixMe: Could we get more than one?
+    user = get_user_model().objects.get(slack_user_id=user_id)
+    MessageLink.objects.get_or_create(
+        channel=channel,
+        ts=message_id,
+        defaults = {
+            "permalink": permalink,
+            "saved_by": user,
+            "priority": priority
+        }
+    )
     # Confirm the message was saved
     send_message_saved(slack_event)
 
