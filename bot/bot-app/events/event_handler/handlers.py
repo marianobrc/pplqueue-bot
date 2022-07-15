@@ -23,6 +23,8 @@ def app_mention(slack_event):
     if "save" in text and "message" in text:
         # ToDo: Parse priority from the text
         save_message(slack_event)
+    elif "list" in text:  # Retrieve message list
+        list_messages(slack_event)
     else:  # Default response if no other command is recognized
         send_greetings(slack_event)
 
@@ -58,6 +60,18 @@ def save_message(slack_event, priority=MessageLink.Priority.MEDIUM):
     send_message_saved(slack_event)
 
 
+def list_messages(slack_event):
+    # Get the saved messages ordered by priority and then by timestamp
+    user_id = slack_event['event']['user'].strip()
+    user = get_user_model().objects.get(slack_user_id=user_id)
+    messages = MessageLink.objects.filter(saved_by=user, is_removed=False).order_by('priority', 'created')
+    # Build a list to show in slack
+    messages_list_str = "These are your saved messages:"+ "".join(
+        [f"\n\t * {message.permalink}" for message in messages]
+    )
+    send_text_response_to_slack(slack_event, messages_list_str)
+
+
 def get_message_permalink(channel_id, message_id):
     try:
         print(f'Getting permalink to message: {message_id}')
@@ -75,7 +89,10 @@ def get_message_permalink(channel_id, message_id):
         # {'ok': True, 'permalink': 'https://pplqueueworkspace.slack.com/archives/C03P7FRBN6N/p1657826870783359?thread_ts=1657826870.783359&cid=C03P7FRBN6N', 'channel': 'C03P7FRBN6N'}
         return result['permalink']
 
-# Helper function to send messages to slack
+
+# Helper functions to send messages to slack
+
+
 def send_text_response_to_slack(slack_event, response_text):
     try:
         channel_id = slack_event['event']['channel']
