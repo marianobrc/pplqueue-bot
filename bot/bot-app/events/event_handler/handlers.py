@@ -19,14 +19,31 @@ def app_mention(slack_event):
     print(f'[app_mention]> Got a message from channel {channel_id}, user {user_id}: \n {text}')
 
     # Parse commands
+    sanitized_text = text.strip().lower()
     # "save message"
-    if "save" in text and "message" in text:
-        # ToDo: Parse priority from the text
-        save_message(slack_event)
-    elif "list" in text:  # Retrieve message list
+    if "save" in sanitized_text:
+        # Parse priority from the text
+        priority = parse_message_priority(sanitized_text)
+        save_message(slack_event, priority=priority)
+    elif "list" in sanitized_text:  # Retrieve message list
         list_messages(slack_event)
     else:  # Default response if no other command is recognized
         send_greetings(slack_event)
+
+
+def parse_message_priority(text):
+    if "highest" in text:
+        return MessageLink.Priority.HIGHEST
+    if "highest" in text:
+        return MessageLink.Priority.HIGH
+    if "medium" in text:
+        return MessageLink.Priority.MEDIUM
+    if "low" in text:
+        return MessageLink.Priority.LOW
+    if "lowest" in text:
+        return MessageLink.Priority.LOWEST
+    # If no priority is specified, then use medium
+    return MessageLink.Priority.MEDIUM
 
 
 def save_message(slack_event, priority=MessageLink.Priority.MEDIUM):
