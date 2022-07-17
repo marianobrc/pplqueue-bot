@@ -47,3 +47,16 @@ class MessageLink(UUIDModel, TimeStampedModel, SoftDeletableModel):
         abstract = False
         app_label = 'slack_messages'
         ordering = ['-created']
+
+    def __str__(self):
+        return self.permalink
+
+    def to_slack_blocks_representation(self):
+        return {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                #"text": f"{self.priority} - <{self.permalink}| Message>"
+                "text": f"<{self.permalink}>"
+            }
+        }

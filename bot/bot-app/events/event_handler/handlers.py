@@ -83,10 +83,8 @@ def list_messages(slack_event):
     user = get_user_model().objects.get(slack_user_id=user_id)
     messages = MessageLink.objects.filter(saved_by=user, is_removed=False).order_by('priority', 'created')
     # Build a list to show in slack
-    messages_list_str = "These are your saved messages:"+ "".join(
-        [f"\n\t * {message.permalink}" for message in messages]
-    )
-    send_text_response_to_slack(slack_event, messages_list_str)
+    blocks = [message.to_slack_blocks_representation() for message in messages]
+    send_richtext_response_to_slack(slack_event, blocks)
 
 
 def get_message_permalink(channel_id, message_id):
@@ -128,6 +126,30 @@ def send_text_response_to_slack(slack_event, response_text):
                 channel=channel_id,
                 text=answer
                 # You could also use a blocks[] array to send richer content
+            )
+        # Print result, which includes information about the message (like TS)
+        print(f'Slack API answer: {result}')
+
+    except SlackApiError as e:
+        print(f"Error: {e}")
+
+
+# ToDo: DRY
+def send_richtext_response_to_slack(slack_event, response_blocks, unfurl_links=True):
+    try:
+        channel_id = slack_event['event']['channel']
+        if "thread_ts" in slack_event['event']:  # Respond in the same Thread
+            result = slack_client.chat_postMessage(
+                channel=channel_id,
+                thread_ts=slack_event['event']['thread_ts'],
+                blocks=response_blocks,
+                unfurl_links=unfurl_links
+            )
+        else:  # Respond in the channel
+            result = slack_client.chat_postMessage(
+                channel=channel_id,
+                blocks=response_blocks,
+                unfurl_links=unfurl_links
             )
         # Print result, which includes information about the message (like TS)
         print(f'Slack API answer: {result}')
