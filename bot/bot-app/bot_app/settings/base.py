@@ -45,7 +45,6 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # Project apps go here
     'accounts',
-    'events',
     'slack_messages',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

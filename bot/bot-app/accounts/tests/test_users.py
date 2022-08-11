@@ -54,4 +54,4 @@ def test_user_delete(create_user):
     slack_user_id = "ABCD123"
     create_user(slack_user_id=slack_user_id)
     User.objects.filter(slack_user_id=slack_user_id).delete()
-    assert User.objects.filter(slack_user_id=slack_user_id).count() == 0
+    assert not User.objects.filter(slack_user_id=slack_user_id).exists()
