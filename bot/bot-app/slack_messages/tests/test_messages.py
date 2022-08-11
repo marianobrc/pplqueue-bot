@@ -40,7 +40,15 @@ def test_message_create_minimal(create_channel, create_user):
 
 
 @pytest.mark.django_db
-def test_message_retrieve(create_message):
+def test_message_retrieve_by_id(create_message):
+    msg = create_message(priority=MessageLink.Priority.LOW)
+    msg_from_db = MessageLink.objects.get(id=msg.id)
+    assert msg_from_db.id == msg.id
+    assert msg_from_db.priority == MessageLink.Priority.LOW
+
+
+@pytest.mark.django_db
+def test_message_retrieve_by_channel_and_ts(create_message):
     msg = create_message(priority=MessageLink.Priority.LOW)
     msg_from_db = MessageLink.objects.get(channel=msg.channel, ts=msg.ts)
     assert msg_from_db.priority == MessageLink.Priority.LOW
@@ -53,6 +61,7 @@ def test_message_update(create_message):
     msg.save()
     msg.refresh_from_db()
     assert msg.priority == MessageLink.Priority.HIGHEST
+
 
 @pytest.mark.django_db
 def test_message_delete(create_message):
