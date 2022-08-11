@@ -15,10 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-import events.urls
+from slack_messages import urls as slack_events_urls
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('events/', include(events.urls)),
+    path('events/', include(slack_events_urls)),
 ]
