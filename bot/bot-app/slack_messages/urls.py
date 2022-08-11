@@ -17,5 +17,5 @@ from django.urls import path
 from .views import EventsAPIView
 
 urlpatterns = [
-    path('', EventsAPIView.as_view()),
+    path('', EventsAPIView.as_view(), name='slack-events'),
 ]
