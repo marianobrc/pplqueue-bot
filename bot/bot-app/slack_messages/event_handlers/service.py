@@ -16,7 +16,7 @@ def handle_event(slack_event):
         channel_id = slack_event['event']['channel']
         user_id = slack_event['event']['user'].strip()
         channel, _ = SlackChannel.objects.get_or_create(channel_id=channel_id)
-        user, created =  get_user_model().objects.get_or_create(slack_user_id=user_id)
+        user, created = get_user_model().objects.get_or_create(username=user_id, slack_user_id=user_id)
         # Process events by type
         event_type = slack_event['event']['type']
         try:

@@ -62,14 +62,14 @@ def save_message(slack_event, priority=MessageLink.Priority.MEDIUM):
         return
     print(f"[save_message]> Link: {permalink}")
     # Save the message, only once
-    channel = SlackChannel.objects.get(channel_id=channel_id)  # FixMe: Could we get more than one?
+    channel = SlackChannel.objects.get(channel_id=channel_id)
     user = get_user_model().objects.get(slack_user_id=user_id)
     MessageLink.objects.get_or_create(
+        saved_by=user,
         channel=channel,
         ts=message_id,
-        defaults = {
+        defaults={
             "permalink": permalink,
-            "saved_by": user,
             "priority": priority
         }
     )
