@@ -21,7 +21,7 @@ def test_url_verification(signed_api_client):
 
 
 @pytest.mark.django_db
-def test_event_app_mention__request(signed_api_client, mocker):
+def test_event__app_mention__send_greetings(signed_api_client, mocker):
     event_data = {
         "token": "SoMeTok3nN0tR34llyUsed",
         "team_id": "TEAMX8M7UCQ",
