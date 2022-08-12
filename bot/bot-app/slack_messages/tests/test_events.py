@@ -21,7 +21,7 @@ def test_url_verification(signed_api_client):
 
 
 @pytest.mark.django_db
-def test_event_app_mention__request(signed_api_client):
+def test_event_app_mention__request(signed_api_client, mocker):
     event_data = {
         "token": "SoMeTok3nN0tR34llyUsed",
         "team_id": "TEAMX8M7UCQ",
@@ -66,10 +66,20 @@ def test_event_app_mention__request(signed_api_client):
         "is_ext_shared_channel": False,
         "event_context": "4-eyJldCI6ImFwcF9tZW50aW9uIiwidGlkIjoiVDAzUFg4TTdVQ1EiLCJhaWQiOiJBMDNQR01RU0ZEMiIsImNpZCI6IkMwM1A3RlJCTjZOIn0",
     }
+    # Mock out requests to slack api
+    mock_obj = mocker.patch(
+        'slack_messages.event_handlers.handlers.send_text_response_to_slack',
+    )
+    # The requests must be signed
     signer = SignatureVerifier(signing_secret=settings.SLACK_SIGNING_SECRET)
     events_url = reverse("slack-events")
     response = signed_api_client.signed_post(
         events_url, data=event_data, signer=signer, format="json"
     )
-    #ToDo: Mock/Stub the send_text_response_to_slack method
     assert response.status_code == status.HTTP_200_OK
+    # Check that the roper response msg was sent to slack
+    _, kwargs = mock_obj.call_args_list[-1]
+    assert mock_obj.call_count == 1
+    assert kwargs['slack_event'] == event_data
+    assert kwargs['response_text'] == ":wave: How can I help?"
+
