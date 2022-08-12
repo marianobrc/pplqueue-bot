@@ -23,7 +23,7 @@ def test_url_verification(signed_api_client):
 
 @pytest.mark.django_db
 def test_event__app_mention__send_greetings(signed_api_client, mocker, slack_event_empty_mention):
-    event_data = slack_event_empty_mention
+    event_data = slack_event_empty_mention()
     # Mock out requests to slack api
     mock_obj = mocker.patch(
         "slack_messages.event_handlers.handlers.send_text_response_to_slack",
@@ -44,7 +44,7 @@ def test_event__app_mention__send_greetings(signed_api_client, mocker, slack_eve
 
 @pytest.mark.django_db
 def test_event__app_mention__save_message(signed_api_client, mocker, slack_event_save_message):
-    event_data = slack_event_save_message
+    event_data = slack_event_save_message()
     # Mock out requests to slack api
     mock_msg_to_slack = mocker.patch(
         "slack_messages.event_handlers.handlers.send_text_response_to_slack",
@@ -80,9 +80,9 @@ def test_event__app_mention__save_message(signed_api_client, mocker, slack_event
 
 @pytest.mark.django_db
 def test_event__app_mention__save_message_two_users(signed_api_client, mocker, slack_event_save_message):
-    event_data_user_1 = slack_event_save_message
+    event_data_user_1 = slack_event_save_message()
     event_data_user_1['event']['user'] = "USER1111111"
-    event_data_user_2 = slack_event_save_message
+    event_data_user_2 = slack_event_save_message()
     event_data_user_2['event']['user'] = "USER2222222"
 
     # Mock out requests to slack api
